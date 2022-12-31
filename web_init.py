@@ -5,8 +5,8 @@ from web_server import ApiServer
 components = [Files, Image, FileWords, ImageBase64, Save, Index]
 
 
-def init_web(env: Environment) -> tuple[ApiServer, list[Component]]:
-    api_server = ApiServer()
+def init_web(env: Environment, static_folder) -> tuple[ApiServer, list[Component]]:
+    api_server = ApiServer(static_folder=static_folder)
     instantiated_components = []
     for componentClass in components:
         _component = componentClass(env)

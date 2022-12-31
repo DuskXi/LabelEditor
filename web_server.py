@@ -1,5 +1,6 @@
 import logging
 
+from loguru import logger
 from flask import Flask
 from flask_cors import CORS, cross_origin
 
@@ -14,8 +15,11 @@ class ApiServer:
         self.app.config['CORS_HEADERS'] = 'Content-Type'
         log = logging.getLogger('werkzeug')
         log.disabled = True
+        logger.info("ApiServer initialized")
+        logger.info("Static folder: " + static_folder)
 
-    def run(self):
+    def run(self, host='127.0.0.1', port=5000):
+        logger.info(f"server is running on http://{host}:{port}")
         self.app.run(threaded=True)
 
     def register(self, path, func, methods=['GET']):
