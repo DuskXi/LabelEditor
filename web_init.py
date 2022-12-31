@@ -2,7 +2,7 @@ from api_server import *
 from env import Environment
 from web_server import ApiServer
 
-components = [Files, Image, FileWords, ImageBase64, Save]
+components = [Files, Image, FileWords, ImageBase64, Save, Index]
 
 
 def init_web(env: Environment) -> tuple[ApiServer, list[Component]]:
