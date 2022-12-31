@@ -20,6 +20,24 @@
 
 在`public/src/boot/config.js` 中的 `app.config.globalProperties.$DEBUG` 参数将会决定前端请求API时是否使用调试地址（这一般性作为使用quasar dev进行前端开发时的权宜之计），如果为False将会使用`/`作为根访问API
   
+## 开发:
+
+quasar: 2.x
+
+python: >=3.7
+
+### 前端开发
+
+```bash
+cd public && quasar dev
+```
+
+### 后端开发
+
+```bash
+python main.py --host 107.0.0.1 --port 5000
+```
+
 ## 功能:
 
 1. 对图像使用tag进行筛选（支持反向筛选）
