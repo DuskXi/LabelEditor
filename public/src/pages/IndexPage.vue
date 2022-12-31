@@ -36,6 +36,9 @@
                                     </q-tooltip>
                                 </q-card>
                             </q-intersection>
+                            <q-inner-loading :showing="imageLoading">
+                                <q-spinner-gears size="50px" color="primary"/>
+                            </q-inner-loading>
                         </div>
                     </q-scroll-area>
                 </div>
@@ -137,13 +140,22 @@
                                 </div>
                                 <q-btn label="清空筛选器" @click="clearFilter" color="primary"></q-btn>
                                 <q-toggle v-model="negativeShow" right-label>反向筛选</q-toggle>
+                                <q-toggle v-model="enableBottomAdd" v-if="tagEditor" right-label>启用添加</q-toggle>
                             </div>
                             <div class="row">
                                 <q-card class="my-card" color="primary">
                                     <q-checkbox v-for="(key, index) in shownLabels" :key="index"
                                                 v-model="labelChoose[key]" color="teal"><span v-html="`${highLight(key, labelSearcher)} [${labelClassify[key]}]&nbsp;`"></span>
+                                        <q-btn icon="add" :dense="true" v-if="tagEditor && enableBottomAdd"
+                                               @click="((event)=>{if(!labelOptions.includes(key))labelOptions.push(key); event.target.disabled=true; labelChoose[key]=!labelChoose[key];})"></q-btn>
                                     </q-checkbox>
                                 </q-card>
+                                <q-inner-loading
+                                    :showing="tagLoading"
+                                    label="Please wait..."
+                                    label-class="text-teal"
+                                    label-style="font-size: 1.1em"
+                                />
                             </div>
                         </div>
                     </q-scroll-area>
@@ -174,6 +186,7 @@ export default defineComponent({
         operateLabel: null,
         visibleLabels: {},
         labelSearcher: '',
+        enableBottomAdd: false,
         sortType: true,
         negativeShow: false,
         keyImageViewer: new Date().getTime(),
@@ -182,6 +195,8 @@ export default defineComponent({
         addOptions: false,
         newLabel: '',
         saveTag: false,
+        tagLoading: false,
+        imageLoading: false,
     }),
     computed: {
         shownLabels() {
@@ -237,6 +252,7 @@ export default defineComponent({
             });
         },
         async getFiles() {
+            this.imageLoading = true;
             const response = await fetch(this.getUrl("/api/v1/files"), {mode: 'cors'})
             const data = await response.json()
             this.dataStore = [];
@@ -261,6 +277,7 @@ export default defineComponent({
             this.dataStore.forEach((file) => {
                 file.imageDataUrl = allImage[file.imageName.replace(/\.png$/g, '')];
             })
+            this.imageLoading = false;
             this.keyImageViewer = new Date().getTime();
             this.archiveData = this.dataStore.map((file) => {
                 return {
@@ -351,9 +368,9 @@ export default defineComponent({
                 for (let j = 0; j < labels.length; j++) {
                     if (labelsCurrent.includes(labels[j])) {
                         match = true;
+                        break;
                     } else {
                         match = false;
-                        break;
                     }
                 }
                 if (!this.negativeShow) {
@@ -473,8 +490,10 @@ export default defineComponent({
         } else {
             this.base_url = '';
         }
+        this.tagLoading = true;
         await this.getFiles();
         this.updateLabels();
+        this.tagLoading = false;
         var app = this;
         document.addEventListener('keydown', function (event) {
             app.keyBoardTable[event.key] = true;
@@ -513,6 +532,18 @@ export default defineComponent({
                 }
             },
             deep: true
+        },
+        labelOptions: {
+            handler: function (value) {
+                try {
+                    if (value.length === 1) {
+                        this.operateLabel = value[0];
+                    }
+                } catch (e) {
+                    console.log(e);
+                }
+            },
+            deep: true,
         },
     }
 })
