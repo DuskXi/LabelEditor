@@ -7,7 +7,7 @@ from web_server import ApiServer
 
 
 def main(args):
-    env = Environment({}, read_path=r"W:\work\training\dusk_v2_training_set")
+    env = Environment({}, read_path=r"W:\work\training\skadi_v2_768_training_set")
     inited = init_web(env, args.quasarbuild)
     api_server: ApiServer = inited[0]
     instantiated_components: list[Component] = inited[1]
