@@ -27,7 +27,7 @@ class Save(Component):
 
     async def view(self):
         json_data = request.get_json()
-        print(json_data)
+        # print(json_data)
         changes = json_data['data']
         for change in changes:
             filewords_filename = change[1]['filewordsName']
