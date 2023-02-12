@@ -54,5 +54,5 @@ python main.py --host 107.0.0.1 --port 5000
 <img width="1108" alt="屏幕截图_20221230_230108" src="https://user-images.githubusercontent.com/84715902/210116925-fbb16bd0-cbb3-4c97-b4f1-2306aff52ef3.png">
 <img width="1670" alt="屏幕截图_20221230_230128" src="https://user-images.githubusercontent.com/84715902/210116923-c3c5cfb5-4932-4ecb-b902-ad37efa1f720.png">
 <img width="1873" alt="屏幕截图_20221230_230154" src="https://user-images.githubusercontent.com/84715902/210116919-70f38e6c-2616-490e-9ba9-ef4a57af1705.png">
-<img width="1891" alt="image" src="https://user-images.githubusercontent.com/84715902/218340332-df3270a2-af77-4e88-b744-30034d79a3c9.png">
+<img width="1897" alt="image" src="https://user-images.githubusercontent.com/84715902/218341196-687bdb28-1069-4ea5-a2d2-3a501aeb4c1b.png">
 
