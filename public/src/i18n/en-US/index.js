@@ -1,5 +1,9 @@
 export default {
     '样本': 'Sample',
+    '保存': 'Save',
+    '取消': 'Cancel',
+    '一共': 'Totally: ',
+    '项修改': ' changes',
     'Tag 编辑': 'Tag Edit',
     '被选中的数据所拥有的Tags:': 'Tags owned by selected data:',
     '已选中': 'Selected',

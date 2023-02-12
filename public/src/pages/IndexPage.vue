@@ -55,11 +55,11 @@
                                         <q-dialog v-model="saveTag">
                                             <q-card :style="$q.screen.gt.sm? 'width: 1500px; max-width: 75vw;':'width: 95vw;'">
                                                 <q-card-section>
-                                                    <div class="text-h6">保存</div>
+                                                    <div class="text-h6">{{ $t('保存') }}</div>
                                                 </q-card-section>
 
                                                 <q-card-section class="q-pt-none">
-                                                    <div class="text-h5">一共 <span style="color: red">{{ difference_data()[0] }} </span> 项修改</div>
+                                                    <div class="text-h5">{{ $t('一共') }}一共 <span style="color: red">{{ difference_data()[0] }} </span> {{ $t('项修改') }}</div>
                                                     <div class="text-h6" v-for="(item, index) in difference_data()[1]" :key="index">
                                                         <span style="color: #00b0ff">[{{ index }}]: </span>
                                                         <span style="color: #b0bec5; font-size: 7px">[{{ /[0-9\-]+(?=(\x20|\.))/.exec(item[0].imageName)[0] }}]: </span>
@@ -70,8 +70,8 @@
                                                 </q-card-section>
 
                                                 <q-card-actions align="right">
-                                                    <q-btn flat label="取消" color="black" v-close-popup/>
-                                                    <q-btn flat label="保存" color="positive" @click="save" v-close-popup/>
+                                                    <q-btn flat :label="$t('取消')" color="black" v-close-popup/>
+                                                    <q-btn flat :label="$t('保存')" color="positive" @click="save" v-close-popup/>
                                                 </q-card-actions>
                                             </q-card>
                                         </q-dialog>
