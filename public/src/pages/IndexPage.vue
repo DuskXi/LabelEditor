@@ -86,8 +86,9 @@
                                                    :disable="dataSelected.filter((value) => value).length === dataSelected.length"
                                                    :label="dataSelected.filter((value) => value).length === 0 ?'取反(全选)': '取反'"/>
                                         </div>
-                                        <div class="row" >
-                                            <q-expansion-item v-model="tagEditorFilter" icon="filter_alt" :label="tagEditorFilter?'收起过滤器':'展开过滤器'" caption="tagEditorFilter" style="width: 100%">
+                                        <div class="row">
+                                            <q-expansion-item v-model="tagEditorFilter" icon="filter_alt" :label="tagEditorFilter?'收起过滤器':'展开过滤器'" caption="tagEditorFilter"
+                                                              style="width: 100%">
                                                 <q-card class="my-card q-gutter-y-none q-gutter-none" color="primary">
                                                     <q-checkbox v-for="(key, index) in keySortByValue(simpleLabelCount(dataSelected))" :key="index"
                                                                 v-model="labelChoose[key]" color="teal"><span v-html="`${key} [${simpleLabelCount(dataSelected)[key]}]&nbsp;`"></span>
@@ -167,6 +168,12 @@
                                 <q-btn label="清空筛选器" @click="clearFilter" color="primary"></q-btn>
                                 <q-toggle v-model="negativeShow" right-label>翻转结果</q-toggle>
                                 <q-toggle v-model="enableBottomAdd" v-if="tagEditor" right-label>启用添加</q-toggle>
+                                <div class="text-h6">过滤器逻辑运算方式</div>
+                                <div class="q-gutter-none">
+                                    And
+                                    <q-toggle v-model="filterOperate" left-label></q-toggle>
+                                    Or
+                                </div>
                             </div>
                             <div class="row">
                                 <q-card class="my-card" color="primary">
@@ -216,6 +223,7 @@ export default defineComponent({
         enableBottomAdd: false,
         sortType: true,
         negativeShow: false,
+        filterOperate: false,
         keyImageViewer: new Date().getTime(),
         keyBoardTable: {},
         tagEditor: false,
@@ -413,12 +421,21 @@ export default defineComponent({
         },
         includeLabels(filewords, targetLabels) {
             let labels = this.getLabels(filewords);
-            for (let i = 0; i < targetLabels.length; i++) {
-                if (labels.includes(targetLabels[i])) {
-                    return true;
+            if (this.filterOperate) {
+                for (let i = 0; i < targetLabels.length; i++) {
+                    if (labels.includes(targetLabels[i])) {
+                        return true;
+                    }
                 }
+                return false;
+            } else {
+                for (let i = 0; i < targetLabels.length; i++) {
+                    if (!labels.includes(targetLabels[i])) {
+                        return false;
+                    }
+                }
+                return true;
             }
-            return false;
         },
         getLabels(labelStr) {
             let labels = labelStr.split(', ');
@@ -634,6 +651,11 @@ export default defineComponent({
             },
             deep: true
         },
+        filterOperate: {
+            handler: function (val, oldVal) {
+                this.onLabelChooseChange();
+            }
+        },
         labelSearcher: {
             handler: function (val, oldVal) {
                 for (let key in this.visibleLabels) {
@@ -661,12 +683,6 @@ export default defineComponent({
                 } catch (e) {
                     console.log(e);
                 }
-            },
-            deep: true,
-        },
-        operateLabel: {
-            handler: function (value) {
-
             },
             deep: true,
         },
