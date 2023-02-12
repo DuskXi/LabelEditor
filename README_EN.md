@@ -47,7 +47,7 @@ python main.py --host 107.0.0.1 --port 5000
 5. preview changes before saving (red for delete, green for add)
 
 ## Preview(the latest version was added i18n support, for chinese and english):
-<img width="1891" alt="image" src="https://user-images.githubusercontent.com/84715902/218340332-df3270a2-af77-4e88-b744-30034d79a3c9.png">
+<img width="1897" alt="image" src="https://user-images.githubusercontent.com/84715902/218341196-687bdb28-1069-4ea5-a2d2-3a501aeb4c1b.png">
 <div align="center">
   <img width="500" alt="屏幕截图_20221230_230055" src="https://user-images.githubusercontent.com/84715902/210116915-d25d3b22-8429-406c-9523-aa864d13fc97.png"/>
   <img width="500" alt="屏幕截图_20221230_230036" src="https://user-images.githubusercontent.com/84715902/210116918-04751e29-e440-4508-9bbf-aab601bfc7b9.png"/>
