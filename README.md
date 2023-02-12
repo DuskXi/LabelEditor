@@ -1,4 +1,4 @@
-# LabelEditor（数据集Tag编辑器）
+# LabelEditor（数据集Tag编辑器） [English](README_EN.md)
 
 #### 适用范围：
 
