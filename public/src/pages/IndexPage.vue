@@ -80,19 +80,22 @@
                                         <div class="row q-gutter-x-sm">
                                             <q-toggle v-model="selectedShow" v-if="dataSelected.filter((value) => value).length > 0" label="只看选中的数据"/>
                                             <q-btn color="warning" @click="(()=>{selectedShow=false; dataSelected=dataSelected.map(()=>false);})"
-                                                   :disable="dataSelected.filter((value) => value).length ===0">清除选择
+                                                   :disable="dataSelected.filter((value) => value).length === 0">清除选择
                                             </q-btn>
-                                            <q-btn color="secondary" label="取反" @click="(()=>{selectedShow=false; dataSelected=dataSelected.map((value)=>!value);})"
-                                                   :disable="dataSelected.filter((value) => value).length ===dataSelected.length"/>
+                                            <q-btn color="secondary" @click="(()=>{selectedShow=false; dataSelected=dataSelected.map((value, index)=>visibleMask[index] ? !value:value);})"
+                                                   :disable="dataSelected.filter((value) => value).length === dataSelected.length"
+                                                   :label="dataSelected.filter((value) => value).length === 0 ?'取反(全选)': '取反'"/>
                                         </div>
-                                        <div class="row">
-                                            <q-card class="my-card q-gutter-y-none q-gutter-none" color="primary">
-                                                <q-checkbox v-for="(key, index) in keySortByValue(simpleLabelCount(dataSelected))" :key="index"
-                                                            v-model="labelChoose[key]" color="teal"><span v-html="`${key} [${simpleLabelCount(dataSelected)[key]}]&nbsp;`"></span>
-                                                    <q-btn icon="add" :dense="true"
-                                                           @click="((event)=>{if(!labelOptions.includes(key))labelOptions.push(key); event.target.disabled=true; labelChoose[key]=!labelChoose[key];})"></q-btn>
-                                                </q-checkbox>
-                                            </q-card>
+                                        <div class="row" >
+                                            <q-expansion-item v-model="tagEditorFilter" icon="filter_alt" :label="tagEditorFilter?'收起过滤器':'展开过滤器'" caption="tagEditorFilter" style="width: 100%">
+                                                <q-card class="my-card q-gutter-y-none q-gutter-none" color="primary">
+                                                    <q-checkbox v-for="(key, index) in keySortByValue(simpleLabelCount(dataSelected))" :key="index"
+                                                                v-model="labelChoose[key]" color="teal"><span v-html="`${key} [${simpleLabelCount(dataSelected)[key]}]&nbsp;`"></span>
+                                                        <q-btn icon="add" :dense="true"
+                                                               @click="((event)=>{if(!labelOptions.includes(key))labelOptions.push(key); event.target.disabled=true; labelChoose[key]=!labelChoose[key];})"></q-btn>
+                                                    </q-checkbox>
+                                                </q-card>
+                                            </q-expansion-item>
                                         </div>
                                         <q-select filled v-model="operateLabel" :options="labelOptions" label="请添加" hint="操作label">
                                             <template v-slot:append>
@@ -118,6 +121,22 @@
                                                :label="'向所有选择的'+ dataSelected.filter((value) => value).length +'条数据添加该标签'" @click="attachLabel(operateLabel)"/>
                                         <q-btn color="negative" v-if="simpleLabelCount(dataSelected).hasOwnProperty(operateLabel)" @click="detachLabel(operateLabel)"
                                                :label="'从所有选择的'+ dataSelected.filter((value) => value).length +'条数据移除改标签(可移除'+ simpleLabelCount(dataSelected)[operateLabel] +')'"/>
+                                        <q-btn color="primary" v-if="movableLabelCount(operateLabel, 'forward') > 0" @click="moveLabel(operateLabel, 'forward')">
+                                            <template v-slot:default>
+                                                <q-icon name="arrow_back"/>
+                                                {{ movableLabelCount(operateLabel, 'forward') }}
+                                            </template>
+                                        </q-btn>
+                                        <q-btn color="primary" v-if="movableLabelCount(operateLabel, 'back') > 0" @click="moveLabel(operateLabel, 'back')">
+                                            <template v-slot:default>
+                                                {{ movableLabelCount(operateLabel, 'back') }}
+                                                <q-icon name="arrow_forward"/>
+                                            </template>
+                                        </q-btn>
+                                        <div class="row" v-if="movableLabelCount(operateLabel, 'back') + movableLabelCount(operateLabel, 'forward') > 0">
+                                            <q-badge color="secondary"> Label relative position: {{ labelPosition }} % (0 to 100), index: {{ averageLabelPosition }}</q-badge>
+                                            <q-slider v-model="labelPosition" :min="0" :max="100" @update:model-value="setLabelPosition(operateLabel, labelPosition / 100.0);"></q-slider>
+                                        </div>
                                     </q-card-section>
                                 </q-card>
 
@@ -132,6 +151,13 @@
                                     </template>
                                 </q-input>
                             </div>
+                            <div class="text-h6" v-if="chosenLabels.length > 0">负向过滤器:</div>
+                            <div class="row" v-if="chosenLabels.length > 0">
+                                <div class="q-gutter-none" v-for="(key, index) in chosenLabels" :key="index">
+                                    <q-toggle left-label v-model="(labelFilterStrategyTable[key])">{{ key }}</q-toggle>
+                                </div>
+                            </div>
+                            <div class="text-h6" v-if="visibleMask.filter(v => v).length > 0">过滤结果: {{ visibleMask.filter(v => v).length }}</div>
                             <div class="row q-gutter-md">
                                 <div class="q-gutter-none">
                                     名称排序
@@ -139,7 +165,7 @@
                                     计数排序
                                 </div>
                                 <q-btn label="清空筛选器" @click="clearFilter" color="primary"></q-btn>
-                                <q-toggle v-model="negativeShow" right-label>反向筛选</q-toggle>
+                                <q-toggle v-model="negativeShow" right-label>翻转结果</q-toggle>
                                 <q-toggle v-model="enableBottomAdd" v-if="tagEditor" right-label>启用添加</q-toggle>
                             </div>
                             <div class="row">
@@ -183,6 +209,7 @@ export default defineComponent({
         labelItemMap: {},
         labelChoose: {},
         labelOptions: [],
+        labelFilterStrategyTable: {},
         operateLabel: null,
         visibleLabels: {},
         labelSearcher: '',
@@ -192,17 +219,24 @@ export default defineComponent({
         keyImageViewer: new Date().getTime(),
         keyBoardTable: {},
         tagEditor: false,
+        tagEditorFilter: true,
         addOptions: false,
         newLabel: '',
         saveTag: false,
         tagLoading: false,
         imageLoading: false,
+        labelPosition: 0,
+        labelPositionOperationProtect: false,
+        averageLabelPosition: 0,
     }),
     computed: {
         shownLabels() {
             let sorted = (this.sortType ? this.labelsKeysSortByValue() : this.labelsKeysSortByKey());
             return sorted.filter((key) => this.visibleLabels[key]);
-        }
+        },
+        chosenLabels() {
+            return this.shownLabels.filter((key) => this.labelChoose[key]);
+        },
     },
     methods: {
         highLight(text, highlightText, color = 'red') {
@@ -356,30 +390,35 @@ export default defineComponent({
                 this.visibleMask = this.visibleMask.map(() => true);
                 return;
             }
-            let labels = [];
+            let labelsPositive = [];
+            let labelsNegative = [];
             for (let key in this.labelChoose) {
-                if (this.labelChoose[key]) {
-                    labels.push(key);
-                }
-            }
-            for (let i = 0; i < this.visibleMask.length; i++) {
-                let labelsCurrent = this.getLabels(this.dataStore[i].filewords);
-                let match = false;
-                for (let j = 0; j < labels.length; j++) {
-                    if (labelsCurrent.includes(labels[j])) {
-                        match = true;
-                        break;
+                if (this.labelChoose[key])
+                    if (!this.labelFilterStrategyTable[key]) {
+                        labelsPositive.push(key);
                     } else {
-                        match = false;
+                        labelsNegative.push(key);
                     }
-                }
-                if (!this.negativeShow) {
-                    this.visibleMask[i] = match;
-                } else {
-                    this.visibleMask[i] = !match;
-                }
-
             }
+            this.visibleMask.forEach((mask, index) => {
+                if (labelsPositive.length === 0 && labelsNegative.length !== 0)
+                    this.visibleMask[index] = !this.includeLabels(this.dataStore[index].filewords, labelsNegative);
+                else if (labelsNegative.length === 0 && labelsPositive.length !== 0)
+                    this.visibleMask[index] = this.includeLabels(this.dataStore[index].filewords, labelsPositive);
+                else
+                    this.visibleMask[index] = this.includeLabels(this.dataStore[index].filewords, labelsPositive) && !this.includeLabels(this.dataStore[index].filewords, labelsNegative);
+                if (this.negativeShow)
+                    this.visibleMask[index] = !this.visibleMask[index];
+            })
+        },
+        includeLabels(filewords, targetLabels) {
+            let labels = this.getLabels(filewords);
+            for (let i = 0; i < targetLabels.length; i++) {
+                if (labels.includes(targetLabels[i])) {
+                    return true;
+                }
+            }
+            return false;
         },
         getLabels(labelStr) {
             let labels = labelStr.split(', ');
@@ -391,6 +430,7 @@ export default defineComponent({
             this.labelClassify = {};
             this.labelItemMap = {};
             this.labelChoose = {};
+            this.labelFilterStrategyTable = {};
             this.visibleLabels = {};
             this.dataStore.forEach((item, index) => {
                 const labels = this.getLabels(item.filewords);
@@ -403,6 +443,7 @@ export default defineComponent({
                         this.labelClassify[key] = 1;
                         this.labelItemMap[key] = [index];
                         this.labelChoose[key] = false;
+                        this.labelFilterStrategyTable[key] = false;
                         this.visibleLabels[key] = true;
                     }
                 })
@@ -424,6 +465,23 @@ export default defineComponent({
                 }
             })
             return labelClassify;
+        },
+        movableLabelCount(label, direction) {
+            let result = 0;
+            this.dataSelected.forEach((selected, index) => {
+                if (selected) {
+                    let labels = this.dataStore[index].labels;
+                    let indexLabel = labels.indexOf(label);
+                    if (indexLabel >= 0) {
+                        if (direction === 'back' && indexLabel < labels.length - 1) {
+                            result++;
+                        } else if (direction === 'forward' && indexLabel > 0) {
+                            result++;
+                        }
+                    }
+                }
+            })
+            return result;
         },
         attachLabel(label) {
             this.dataSelected.forEach((selected, index) => {
@@ -447,6 +505,61 @@ export default defineComponent({
                     })
                 }
             })
+        },
+        moveLabel(label, direction) {
+            this.dataSelected.forEach((selected, index) => {
+                if (selected) {
+                    let labels = this.dataStore[index].labels;
+                    let indexLabel = labels.indexOf(label);
+                    if (indexLabel >= 0) {
+                        if (direction === 'back' && indexLabel < labels.length - 1) {
+                            labels.splice(indexLabel, 1);
+                            labels.splice(indexLabel + 1, 0, label);
+                        } else if (direction === 'forward' && indexLabel > 0) {
+                            labels.splice(indexLabel, 1);
+                            labels.splice(indexLabel - 1, 0, label);
+                        }
+                        this.dataStore[index].filewords = '';
+                        labels.forEach((label, i) => {
+                            this.dataStore[index].filewords += label + (i < labels.length - 1 ? ', ' : '');
+                        })
+                    }
+                }
+            })
+        },
+        setLabelPosition(label, position) {
+            this.dataSelected.forEach((selected, index) => {
+                if (selected) {
+                    let labels = this.dataStore[index].labels;
+                    let indexLabel = labels.indexOf(label);
+                    if (indexLabel >= 0) {
+                        labels.splice(indexLabel, 1);
+                        labels.splice(Math.round(labels.length * position), 0, label);
+                        this.dataStore[index].filewords = '';
+                        labels.forEach((label, i) => {
+                            this.dataStore[index].filewords += label + (i < labels.length - 1 ? ', ' : '');
+                        })
+                    }
+                }
+            })
+        },
+        updateLabelPosition(label) {
+            let labelIndexList = [];
+            let labelPositionList = [];
+            this.dataSelected.forEach((selected, index) => {
+                if (selected) {
+                    let labels = this.dataStore[index].labels;
+                    let indexLabel = labels.indexOf(label);
+                    if (indexLabel >= 0) {
+                        labelPositionList.push(indexLabel / (labels.length - 1));
+                        labelIndexList.push(indexLabel);
+                    }
+                }
+            })
+            this.labelPositionOperationProtect = true;
+            this.labelPosition = Math.round((labelPositionList.reduce((a, b) => a + b, 0) / labelPositionList.length * 100));
+            this.labelPositionOperationProtect = false;
+            this.averageLabelPosition = Math.round(labelIndexList.reduce((a, b) => a + b, 0) / labelIndexList.length);
         },
         addNewLabel() {
             if (this.newLabel === '') {
@@ -515,6 +628,12 @@ export default defineComponent({
             },
             deep: true
         },
+        labelFilterStrategyTable: {
+            handler: function (val, oldVal) {
+                this.onLabelChooseChange();
+            },
+            deep: true
+        },
         labelSearcher: {
             handler: function (val, oldVal) {
                 for (let key in this.visibleLabels) {
@@ -542,6 +661,36 @@ export default defineComponent({
                 } catch (e) {
                     console.log(e);
                 }
+            },
+            deep: true,
+        },
+        operateLabel: {
+            handler: function (value) {
+
+            },
+            deep: true,
+        },
+        dataStore: {
+            handler: function (value) {
+                if (this.movableLabelCount(this.operateLabel, 'back') + this.movableLabelCount(this.operateLabel, 'forward') > 0 && !this.labelPositionOperationProtect) {
+                    this.updateLabelPosition(this.operateLabel);
+                }
+            },
+            deep: true,
+        },
+        labelPosition: {
+            handler: function (value) {
+                if (!this.labelPositionOperationProtect) {
+                    //this.labelPositionOperationProtect = true;
+                    // this.setLabelPosition(this.operateLabel, value / 100.0);
+                    //this.labelPositionOperationProtect = false;
+                }
+            },
+            deep: true,
+        },
+        dataSelected: {
+            handler: function (value) {
+
             },
             deep: true,
         },
