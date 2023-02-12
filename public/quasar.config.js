@@ -32,6 +32,7 @@ module.exports = configure(function (/* ctx */) {
     boot: [
         'config.js',
         'axios.js',
+        'i18n.js',
 
     ],
 
@@ -107,7 +108,7 @@ module.exports = configure(function (/* ctx */) {
       // directives: [],
 
       // Quasar plugins
-      plugins: ['Notify']
+      plugins: ['Notify','Cookies']
     },
 
     // animations: 'all', // --- includes all animations

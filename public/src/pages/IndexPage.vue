@@ -3,7 +3,7 @@
         <div class="row q-col-gutter-x-lg" style="width: 100%">
             <div class="col-7">
                 <div class="row justify-center q-gutter-md">
-                    <div class="text-h4">样本</div>
+                    <div class="text-h4">{{ $t('样本') }}</div>
                     <q-scroll-area style="height: 90vh; width: 100vw;">
                         <div class="row justify-center q-gutter-md">
                             <q-intersection v-for="(enable, index) in visibleMask" :key="index" transition="scale" once class="example-item ">
@@ -48,10 +48,10 @@
                     <q-scroll-area style="height: 95vh; width: 100vw;">
                         <div class="col q-gutter-y-sm">
                             <div class="text-h4">Tags</div>
-                            <q-expansion-item v-model="tagEditor" icon="edit" label="Tag 编辑" caption="TagEditor">
+                            <q-expansion-item v-model="tagEditor" icon="edit" :label="$t('Tag 编辑')" caption="TagEditor">
                                 <q-card>
                                     <q-card-section class="q-gutter-y-sm q-gutter-x-sm" v-if="tagEditor">
-                                        <q-btn color="positive" class="full-width" v-if="difference_data()[0]>0" @click="saveTag=true">保存({{ difference_data()[0] }})</q-btn>
+                                        <q-btn color="positive" class="full-width" v-if="difference_data()[0]>0" @click="saveTag=true">{{ $t('保存') }}({{ difference_data()[0] }})</q-btn>
                                         <q-dialog v-model="saveTag">
                                             <q-card :style="$q.screen.gt.sm? 'width: 1500px; max-width: 75vw;':'width: 95vw;'">
                                                 <q-card-section>
@@ -75,19 +75,19 @@
                                                 </q-card-actions>
                                             </q-card>
                                         </q-dialog>
-                                        <div class="text-h5">已选中 <span style="color: orange">{{ dataSelected.filter((value) => value).length }} 条</span></div>
-                                        <div class="text-h5">被选中的数据所拥有的Tags:</div>
+                                        <div class="text-h5">{{ $t('已选中') }} <span style="color: orange">{{ dataSelected.filter((value) => value).length }} {{ $t('条') }}</span></div>
+                                        <div class="text-h5">{{ $t('被选中的数据所拥有的Tags:') }}</div>
                                         <div class="row q-gutter-x-sm">
-                                            <q-toggle v-model="selectedShow" v-if="dataSelected.filter((value) => value).length > 0" label="只看选中的数据"/>
+                                            <q-toggle v-model="selectedShow" v-if="dataSelected.filter((value) => value).length > 0" :label="$t('只看选中的数据')"/>
                                             <q-btn color="warning" @click="(()=>{selectedShow=false; dataSelected=dataSelected.map(()=>false);})"
-                                                   :disable="dataSelected.filter((value) => value).length === 0">清除选择
+                                                   :disable="dataSelected.filter((value) => value).length === 0">{{ $t('清除选择') }}
                                             </q-btn>
                                             <q-btn color="secondary" @click="(()=>{selectedShow=false; dataSelected=dataSelected.map((value, index)=>visibleMask[index] ? !value:value);})"
                                                    :disable="dataSelected.filter((value) => value).length === dataSelected.length"
-                                                   :label="dataSelected.filter((value) => value).length === 0 ?'取反(全选)': '取反'"/>
+                                                   :label="dataSelected.filter((value) => value).length === 0 ?$t('取反(全选)'): $t('取反')"/>
                                         </div>
                                         <div class="row">
-                                            <q-expansion-item v-model="tagEditorFilter" icon="filter_alt" :label="tagEditorFilter?'收起过滤器':'展开过滤器'" caption="tagEditorFilter"
+                                            <q-expansion-item v-model="tagEditorFilter" icon="filter_alt" :label="tagEditorFilter?$t('收起过滤器'):$t('展开过滤器')" caption="tagEditorFilter"
                                                               style="width: 100%">
                                                 <q-card class="my-card q-gutter-y-none q-gutter-none" color="primary">
                                                     <q-checkbox v-for="(key, index) in keySortByValue(simpleLabelCount(dataSelected))" :key="index"
@@ -98,17 +98,17 @@
                                                 </q-card>
                                             </q-expansion-item>
                                         </div>
-                                        <q-select filled v-model="operateLabel" :options="labelOptions" label="请添加" hint="操作label">
+                                        <q-select filled v-model="operateLabel" :options="labelOptions" :label=" $t('请添加')" :hint=" $t('操作label') ">
                                             <template v-slot:append>
                                                 <q-btn round dense flat icon="add" @click="addOptions=true"/>
                                                 <q-dialog v-model="addOptions">
                                                     <q-card style="width: 45vw">
                                                         <q-card-section>
-                                                            <div class="text-h6">添加自定义Tag</div>
+                                                            <div class="text-h6">{{ $t('添加自定义Tag') }}</div>
                                                         </q-card-section>
 
                                                         <q-card-section class="q-pt-none">
-                                                            <q-input v-model="newLabel" label="请输入新的Tag" filled clearable/>
+                                                            <q-input v-model="newLabel" :label="$t('请输入新的Tag')" filled clearable/>
                                                         </q-card-section>
 
                                                         <q-card-actions align="right">
@@ -119,9 +119,9 @@
                                             </template>
                                         </q-select>
                                         <q-btn color="positive" v-if="operateLabel!=='' && operateLabel!==null"
-                                               :label="'向所有选择的'+ dataSelected.filter((value) => value).length +'条数据添加该标签'" @click="attachLabel(operateLabel)"/>
+                                               :label="$t('向所有选择的')+ dataSelected.filter((value) => value).length +$t('条数据添加该标签')" @click="attachLabel(operateLabel)"/>
                                         <q-btn color="negative" v-if="simpleLabelCount(dataSelected).hasOwnProperty(operateLabel)" @click="detachLabel(operateLabel)"
-                                               :label="'从所有选择的'+ dataSelected.filter((value) => value).length +'条数据移除改标签(可移除'+ simpleLabelCount(dataSelected)[operateLabel] +')'"/>
+                                               :label="$t('从所有选择的')+ dataSelected.filter((value) => value).length +$t('条数据移除改标签(可移除')+ simpleLabelCount(dataSelected)[operateLabel] +')'"/>
                                         <q-btn color="primary" v-if="movableLabelCount(operateLabel, 'forward') > 0" @click="moveLabel(operateLabel, 'forward')">
                                             <template v-slot:default>
                                                 <q-icon name="arrow_back"/>
@@ -143,7 +143,7 @@
 
                             </q-expansion-item>
                             <div class="row">
-                                <q-input v-model="labelSearcher" hint="label搜索" filled autogrow :dense="false" style="width: 100%">
+                                <q-input v-model="labelSearcher" :hint="$t('label搜索')" filled autogrow :dense="false" style="width: 100%">
                                     <template v-slot:before>
                                         <q-icon name="search"/>
                                     </template>
@@ -152,23 +152,23 @@
                                     </template>
                                 </q-input>
                             </div>
-                            <div class="text-h6" v-if="chosenLabels.length > 0">负向过滤器:</div>
+                            <div class="text-h6" v-if="chosenLabels.length > 0">{{ $t('负向过滤器') }}:</div>
                             <div class="row" v-if="chosenLabels.length > 0">
                                 <div class="q-gutter-none" v-for="(key, index) in chosenLabels" :key="index">
                                     <q-toggle left-label v-model="(labelFilterStrategyTable[key])">{{ key }}</q-toggle>
                                 </div>
                             </div>
-                            <div class="text-h6" v-if="visibleMask.filter(v => v).length > 0">过滤结果: {{ visibleMask.filter(v => v).length }}</div>
+                            <div class="text-h6" v-if="visibleMask.filter(v => v).length > 0">{{ $t('过滤结果') }}: {{ visibleMask.filter(v => v).length }}</div>
                             <div class="row q-gutter-md">
                                 <div class="q-gutter-none">
-                                    名称排序
+                                    {{ $t('名称排序') }}
                                     <q-toggle v-model="sortType" left-label></q-toggle>
-                                    计数排序
+                                    {{ $t('计数排序') }}
                                 </div>
-                                <q-btn label="清空筛选器" @click="clearFilter" color="primary"></q-btn>
-                                <q-toggle v-model="negativeShow" right-label>翻转结果</q-toggle>
-                                <q-toggle v-model="enableBottomAdd" v-if="tagEditor" right-label>启用添加</q-toggle>
-                                <div class="text-h6">过滤器逻辑运算方式</div>
+                                <q-btn :label="$t('清空筛选器')" @click="clearFilter" color="primary"></q-btn>
+                                <q-toggle v-model="negativeShow" right-label>{{ $t('翻转结果') }}</q-toggle>
+                                <q-toggle v-model="enableBottomAdd" v-if="tagEditor" right-label>{{ $t('启用添加') }}</q-toggle>
+                                <div class="text-h6">{{ $t('过滤器逻辑运算方式') }}</div>
                                 <div class="q-gutter-none">
                                     And
                                     <q-toggle v-model="filterOperate" left-label></q-toggle>
