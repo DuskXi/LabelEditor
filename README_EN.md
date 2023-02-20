@@ -1,5 +1,7 @@
 # LabelEditor（Dataset editor） [中文README](README.md)
 
+[![wakatime](https://wakatime.com/badge/user/23381c4b-372b-46eb-b687-994db38af858/project/11416424-fb1a-4c94-be60-826ed08291f4.svg)](https://wakatime.com/badge/user/23381c4b-372b-46eb-b687-994db38af858/project/11416424-fb1a-4c94-be60-826ed08291f4)
+
 #### Usage range:
 
 this is a dataset tag editor that devlop for edit dataset of stable diffusion model embedding or dreambooth 
