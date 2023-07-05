@@ -37,7 +37,7 @@ cd public && quasar dev
 ### Api server development
 
 ```bash
-python main.py --host 107.0.0.1 --port 5000
+python main.py --host 127.0.0.1 --port 5000
 ```
 
 ## Function:
